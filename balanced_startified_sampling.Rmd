@@ -1,0 +1,333 @@
+---
+title: Was the balanced stratified coverage sampling not well spatially distributed,
+  or was it inadequately implemented?
+author: "Abdelkrim Bouasria"
+date: "2025-01-06"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Introduction
+
+This repository contains a reproducible notebook accompanying the comment on [Asrat et al. (2024)](https://doi.org/10.1016/j.geoderma.2024.117116), published in *Geoderma*. The comment is entitled *Was the balanced stratified coverage sampling not well spatially distributed, or was it inadequately implemented?* Please refer to the comment for further details ([Bouasria, 2025]())
+
+In this notebook, I implement the sampling design described in Asrat et al. (2024) using the details provided in the main paper and the supplementary material. I will demonstrate the preparation of the covariates, followed by the execution of ten sampling iterations to evaluate whether the results exhibit clustering in any iteration.
+
+## Covariates
+
+Using the same covariates and following nearly identical steps, we performed ten sampling iterations, each selecting 599 samples, to evaluate whether the distribution exhibited consistent trends. We focused on the primary wheat-growing regions and applied the cropland mask (GFSAD30AFCE; [Xiong et al., 2017](https://doi.org/10.5067/MEaSUREs/GFSAD/GFSAD30AFCE.001)) at a 30-meter resolution to exclude other land use areas. The FAO soil vector map was rasterized to match the cropland raster grid, and the remaining covariates were aggregated in accordance with the methodology described by Asrat et al. (2024), then resampled to a spatial resolution of 30 meters.
+
+### Definition of wheat-growing areas in Morocco
+
+The soil sampling locations were selected to capture soil variability and distribution across Morocco's rainfed wheat-growing regions, with a focus on prioritizing soil types relevant to wheat cultivation. We referred to the official statistics of Morocco (CGDA, 2020; page 96) to select 6 out of the 10 wheat-producing regions, which encompass the primary rainfed cropland areas.
+
+The preparation of covariates was performed using the `terra` package.
+
+```{r warning=FALSE}
+library(terra)
+```
+
+We sourced cropland data from the GFSAD30AFCE dataset ([Xiong et al., 2017](https://doi.org/10.5067/MEaSUREs/GFSAD/GFSAD30AFCE.001)). Three tiles were combined into a single VRT file, where we assigned `NA` values to non-cropland classes. We then cropped this file to align with the wheat-growing regions mask.
+
+```{r eval=FALSE, include=TRUE}
+cropland = rast("./_RAW_Data/CROPLAND/croplands.vrt")
+cropland[cropland==0] = NA
+cropland[cropland==1] = NA
+
+rv= vect("./vect/Morocco_regions_mask.shp")
+
+crop(cropland,rv, mask=TRUE, filename="./covariates/croplands.tif",
+            datatype="INT1U", gdal=c("COMPRESS=DEFLATE"))
+
+```
+
+```{r}
+rv= vect("./vect/Morocco_regions.shp")
+cropland = rast("./covariates/croplands.tif")
+plot(cropland, pax=list(retro=TRUE, side=c(1:4)))
+polys(rv)
+text(rv,"NAME_1", halo=TRUE)
+```
+
+### FAO Soil map
+
+Soil data was obtained 
+
+```{r}
+rv_mask= vect("./vect/Morocco_regions_mask.shp")
+soil = crop(vect("./_RAW_Data/FAO_SOIL/DSMW/DSMW.shp"),rv_mask)
+plot(soil,"DOMSOI", ext=ext(rv))
+```
+
+```{r eval=FALSE, include=TRUE}
+mask(rasterize(soil,cropland, field="Legend"),
+                cropland, filename="./covariates/fao_soil.tif",
+                     datatype="INT1U", gdal=c("COMPRESS=DEFLATE"))
+```
+
+```{r}
+rst_soil = rast("./covariates/fao_soil.tif")
+plot(rst_soil, type="classes", col=hcl.colors(23,"Roma"))
+polys(rv)
+```
+
+### Topographic covariates: elevation and slope
+
+DEM data was sourced from xxxx using QGIS plugin
+
+```{r warning=TRUE}
+library("marmap")
+dem = rast("./_RAW_Data/DEM/dem.vrt")
+plot(dem, col= rev(hcl.colors(10, "Greens 3")))
+polys(rv)
+
+```
+The elevation and slope was prepared using 
+```{r eval=FALSE, include=TRUE}
+resample(crop(dem,rv_mask, mask=TRUE),
+         cropland, method="bilinear", threads=TRUE,
+         filename="./covariates/elevation.tif",
+         gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
+
+slope = resample(crop(terrain(dem, v="slope"),rv_mask, mask=TRUE),
+                 cropland, method="bilinear", threads=TRUE,
+                 filename="./covariates/slope.tif",
+                 gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
+```
+
+```{r fig.height=3.5, fig.width=8}
+elevation = rast("./covariates/elevation.tif")
+slope = rast("./covariates/slope.tif")
+
+plot(c(elevation,slope), main=c("Elevation","Slope"),
+     fun = \() polys(rv))
+
+```
+
+### Rainfall: Five years annual average
+
+We decompressed and cropped the CHIRPS decadal data of Africa to the study area.
+```{r eval=FALSE, include=TRUE}
+library(R.utils)
+# Crop for the study area extent
+dir_in  = "./_RAW_Data/CHIRPS/"
+dir_out = "./_RAW_Data/temporary/"
+gz_files =  list.files(dir_in, pattern = ".gz$")
+
+
+for(gz in gz_files){
+  tif_files = rast(gunzip(paste0(dir_in,gz)))
+  terra::crop(tif_files,rv_mask, mask=TRUE, filename=paste0(dir_out,gsub(".gz","",gz)))
+  cat(gz,"\n")
+}
+
+```
+
+We calculated 
+```{r eval=FALSE, include=TRUE}
+
+# calculate the cumulative annual rainfall
+rst_files =  list.files(dir_out, pattern = ".tif$")
+years =  sapply(gsub(".tif$","",gsub("chirps-v2.0.","",rst_files)),
+              \(x) strsplit(x,"\\.")[[1]][1])
+
+df_files = data.frame(files=rst_files,years=years )
+
+annual_rainfall = NULL
+
+for(year in unique(df_files$years)){
+  df = df_files[df_files$years==year,]
+  rainfall_year = sum(rast(paste0(dir_out,df$files)))
+  
+  if(is.null(annual_rainfall)){
+  annual_rainfall = rainfall_year
+    }else{
+  annual_rainfall = c(annual_rainfall, rainfall_year)
+    }
+}
+
+# calculate the five years annual avg
+annual_rainfall_avg = mean(annual_rainfall)
+
+# resemple to cropland raster
+resample(annual_rainfall_avg,
+                    cropland, method="bilinear", threads=TRUE,
+                    filename="./covariates/rainfall.tif",
+                    gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
+
+
+
+```
+
+
+```{r fig.width=6}
+rainfall = rast("./covariates/rainfall.tif")
+plot(rainfall)
+polys(rv)
+# 
+```
+
+### Temperature: Five years annual minimum and maximum temperature
+
+<https://downloads.psl.noaa.gov/Datasets/cpc_global_temp/>
+
+```{r eval=FALSE, include=TRUE}
+
+rst_files =  list.files("./Temp_NOAA/", pattern = ".nc$")
+temp1 = rast(paste0("./Temp_NOAA/",rst_files[1]))
+plot(temp1[[1]])
+x <- rotate(temp1) 
+plot(x[[1]])
+
+rv1 = buffer(rv,5000)
+
+x1 = crop(x,rv1, mask=TRUE)
+plot(x1[[1]])
+polys(rv)
+polys(rv1)
+
+for(rst in rst_files){
+  terra::crop(rotate(rast(paste0("./Temp_NOAA/",rst))),rv1, mask=TRUE, filename=paste0("./Temp_NOAA_MA/",rst))
+  cat(rst,"\n")
+}
+
+# calculate annual AVG of Tmin and Tmax
+rst_files =  list.files("./Temp_NOAA_MA/", pattern = ".nc$")
+
+years =  sapply(gsub(".nc$","",rst_files),
+                \(x) strsplit(x,"\\.")[[1]][2])
+temp =  sapply(gsub(".nc$","",rst_files),
+                \(x) strsplit(x,"\\.")[[1]][1])
+
+df_files = data.frame(files=rst_files,temp=temp,years=years )
+
+df_tmax = df_files[df_files$temp=="tmax",]
+df_tmin = df_files[df_files$temp=="tmin",]
+
+annual_tmax = lapply(df_tmax$years, function(year){
+  mean(rast(paste0("./Temp_NOAA_MA/",df_tmax[df_tmax$years==year,]$files)))
+})
+
+annual_tmax_avg = mean(rast(annual_tmax))
+
+annual_tmin = lapply(df_tmin$years, function(year){
+  mean(rast(paste0("./Temp_NOAA_MA/",df_tmin[df_tmax$years==year,]$files)))
+})
+
+annual_tmin_avg = mean(rast(annual_tmin))
+
+
+tmax = resample(annual_tmax_avg,
+                cropland, method="bilinear", threads=TRUE,
+                filename ="./covariates/tmax.tif", 
+                gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
+tmin = resample(annual_tmin_avg,
+                cropland, method="bilinear", threads=TRUE,
+                filename ="./covariates/tmin.tif", 
+                gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
+
+
+```
+
+
+```{r fig.height=3.5, fig.width=8}
+temp = c(rast("./covariates/tmax.tif"),rast("./covariates/tmin.tif"))
+plot(temp, fun= \() polys(rv))
+```
+
+
+
+## Sampling design test
+
+The authors utilized the `lcubestratified` function from the `BalancedSampling` R package, which implements stratified doubly balanced sampling with pooling of landing phases, utilizing the fast flight Cube method. This function requires seven input arguments, but only four are specified in the paper. These include: (1) the inclusion probabilities (`prob`), which were set to be equal for all points; (2) the spreading parameter (`Xpread`), representing the geographical coordinates across the study area; (3) the balancing auxiliary variables (`Xbal`), which include rainfall, temperature, slope, and elevation; and (4) the stratification parameter (`strata`), representing the FAO soil types . The settings for the remaining arguments were not reported, and therefore, it is assumed that they were left at their default values.
+```{r}
+r_files = list.files("./covariates/", pattern = ".tif$", full.names = T)[-1]
+cov = rast(lapply(r_files, \(r) rast(r)))
+plot(cov, fun=function() polys(rv))
+```
+
+
+
+```{r eval=FALSE, include=TRUE}
+
+library(BalancedSampling)
+
+rv= vect("./vect/Morocco_regions_mask.shp")
+cov = as.data.frame(cov, xy=T,na.rm=TRUE)
+
+saveRDS(cov,"./covariates/cov_30m_df.rds")
+
+N = nrow(cov)
+n = 599
+sprob = rep(n/N, N)
+
+xspr = cov[,c("x","y")]
+xbal  = cov[,c("elevation", "slope", "rainfall", "tmax", "tmin")]
+strata = cov[,"soil"]
+
+iter = 10
+set.seed(1)
+seeds <- runif(iter,1,100000)|> round(0)
+
+samples = list()
+
+for(i in 1:iter){
+  set.seed(seeds[i])
+  samples[[i]] = lcubestratified(prob = sprob,
+                                 Xspread = xspr,
+                                 Xbal = xbal,
+                                 integerStrata = strata)
+  cat("iter:",i,"\n")
+}
+
+
+saveRDS(samples,"./samples/samples.rds")
+saveRDS(xspr,"./samples/cov_xy.rds")
+
+```
+
+
+
+```{r eval=FALSE, include=TRUE}
+samples = readRDS("./samples/samples.rds")
+xspr = readRDS("./samples/cov_xy.rds")
+crs_xy = crs(rast("./cov/cov_30m.tif"))
+
+samples_xy = lapply(samples,\(x) xspr[x,])
+for(i in 1:length(samples_xy)){
+  samples_xy[[i]]=cbind(samples_xy[[i]], iter = i)
+}
+samples_c = do.call(rbind,samples_xy)
+
+saveRDS(samples_c,"./samples_c.rds")
+
+samples_vect = vect(samples_c, geom=c("x", "y"), crs=crs_xy)
+writeVector(samples_vect,"./samples/samples_vect.gpkg")
+
+```
+
+```{r}
+rv= vect("./vect/Morocco_regions_mask.shp")
+samples_vect = vect("./samples/samples_vect.gpkg")
+
+plot(samples_vect,"iter", cex=0.5,mar=c(1,1,1,1),
+     plg=list(x="topleft",title="Iteration", title.cex=1.2, cex=1.2), 
+     pax=list(side=1:4, retro=TRUE,cex.axis=1.2))
+polys(rv)
+north("top")
+sbar(xy="bottomright", type="bar")
+
+```
+
+```{r fig.height=10, fig.width=8}
+par(mfrow = c(4,3))
+
+for(i in 1:10){
+  plot(samples_vect[samples_vect$iter==i],cex=0.5, col="blue",ext=ext(rv),
+       main=paste0("sampling iteration: ",i), mar=c(1,1,1.8,0.5))
+  polys(rv)
+}
+```
+
+

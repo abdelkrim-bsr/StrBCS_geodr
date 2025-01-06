@@ -1,0 +1,215 @@
+<VRTDataset rasterXSize="25201" rasterYSize="21601">
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
+  <GeoTransform> -1.0000138888888889e+01,  2.7777777777777778e-04,  0.0000000000000000e+00,  3.6000138888888891e+01,  0.0000000000000000e+00, -2.7777777777777778e-04</GeoTransform>
+  <VRTRasterBand dataType="Int16" band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">3868</MDI>
+      <MDI key="STATISTICS_MEAN">646.80963041473</MDI>
+      <MDI key="STATISTICS_MINIMUM">-4</MDI>
+      <MDI key="STATISTICS_STDDEV">709.61423235667</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">59.78</MDI>
+    </Metadata>
+    <NoDataValue>-32768</NoDataValue>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N30W009.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="3600" yOff="18000" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N30W010.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="0" yOff="18000" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N31W007.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="10800" yOff="14400" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N31W008.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="7200" yOff="14400" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N31W009.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="3600" yOff="14400" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N31W010.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="0" yOff="14400" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N32W006.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="14400" yOff="10800" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N32W007.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="10800" yOff="10800" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N32W008.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="7200" yOff="10800" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N32W009.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="3600" yOff="10800" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N32W010.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="0" yOff="10800" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W004.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="21600" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W005.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="18000" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W006.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="14400" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W007.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="10800" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W008.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="7200" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N33W009.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="3600" yOff="7200" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N34W004.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="21600" yOff="3600" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N34W005.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="18000" yOff="3600" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N34W006.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="14400" yOff="3600" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N34W007.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="10800" yOff="3600" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N35W004.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="21600" yOff="0" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N35W005.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="18000" yOff="0" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N35W006.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="14400" yOff="0" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+    <ComplexSource resampling="nearest">
+      <SourceFilename relativeToVRT="1">N35W007.hgt</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3601" RasterYSize="3601" DataType="Int16" BlockXSize="3601" BlockYSize="1" />
+      <SrcRect xOff="0" yOff="0" xSize="3601" ySize="3601" />
+      <DstRect xOff="10800" yOff="0" xSize="3601" ySize="3601" />
+      <NODATA>-32768</NODATA>
+    </ComplexSource>
+  </VRTRasterBand>
+</VRTDataset>
