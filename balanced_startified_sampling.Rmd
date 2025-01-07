@@ -11,11 +11,11 @@ output:
 
 This repository contains a reproducible notebook accompanying the comment on [Asrat et al. (2024)](https://doi.org/10.1016/j.geoderma.2024.117116), published in *Geoderma*. The comment is entitled *Was the balanced stratified coverage sampling not well spatially distributed, or was it inadequately implemented?* Please refer to the comment for further details ([Bouasria, 2025]())
 
-In this notebook, I implement the sampling design described in Asrat et al. (2024) using the details provided in the main paper and the supplementary material. I will demonstrate the preparation of the covariates, followed by the execution of ten sampling iterations to evaluate whether the results exhibit clustering in any iteration.
+In this notebook, I implement the sampling design described in Asrat et al. (2024) using the details provided in the main paper and the supplementary material. I will demonstrate the preparation of the covariates, followed by the execution of ten sampling realizations to evaluate whether the results exhibit clustering in any iteration.
 
 ## Covariates
 
-Using the same covariates and following nearly identical steps, we performed ten sampling iterations, each selecting 599 samples, to evaluate whether the distribution exhibited consistent trends. We focused on the primary wheat-growing regions and applied the cropland mask (GFSAD30AFCE; [Xiong et al., 2017](https://doi.org/10.5067/MEaSUREs/GFSAD/GFSAD30AFCE.001)) at a 30-meter resolution to exclude other land use areas. The FAO soil vector map was rasterized to match the cropland raster grid, and the remaining covariates were aggregated in accordance with the methodology described by Asrat et al. (2024), then resampled to a spatial resolution of 30 meters.
+Using the same covariates and following nearly identical steps, we performed ten sampling realizations, each selecting 599 samples, to evaluate whether the distribution exhibited consistent trends. We focused on the primary wheat-growing regions and applied the cropland mask (GFSAD30AFCE; [Xiong et al., 2017](https://doi.org/10.5067/MEaSUREs/GFSAD/GFSAD30AFCE.001)) at a 30-meter resolution to exclude other land use areas. The FAO soil vector map was rasterized to match the cropland raster grid, and the remaining covariates were aggregated in accordance with the methodology described by Asrat et al. (2024), then resampled to a spatial resolution of 30 meters.
 
 ### Definition of wheat-growing areas in Morocco
 
@@ -273,7 +273,7 @@ cov <- makeTiles(cov, vgrid, na.rm = TRUE,
 ```
 
 
-## Sampling design test
+## Sampling design realizations
 
 The authors utilized the `lcubestratified` function from the `BalancedSampling` R package, which implements stratified doubly balanced sampling with pooling of landing phases, utilizing the fast flight Cube method. This function requires seven input arguments, but only four are specified in the paper. These include: (1) the inclusion probabilities (`prob`), which were set to be equal for all points; (2) the spreading parameter (`Xpread`), representing the geographical coordinates across the study area; (3) the balancing auxiliary variables (`Xbal`), which include rainfall, temperature, slope, and elevation; and (4) the stratification parameter (`strata`), representing the FAO soil types . The settings for the remaining arguments were not reported, and therefore, it is assumed that they were left at their default values.
 ```{r}
@@ -304,7 +304,7 @@ xspr = cov[,c("x","y")]
 xbal  = cov[,c("elevation", "slope", "rainfall", "tmax", "tmin")]
 strata = cov[,"soil"]
 
-iter = 10
+iter = 10 # realizations
 set.seed(1)
 seeds <- runif(iter,1,100000)|> round(0)
 
@@ -325,7 +325,7 @@ saveRDS(xspr,"./samples/cov_xy.rds")
 
 ```
 
-After generating the samples for each iteration, we combined them into a single vector point file.
+After generating the samples for each realization, we combined them into a single vector point file.
 
 ```{r eval=FALSE, include=TRUE}
 samples = readRDS("./samples/samples.rds")
@@ -360,14 +360,14 @@ sbar(xy="bottomright", type="bar")
 
 ```
 
-The results of the sampling design for each iteration are shown separately below.  
+The results of the sampling design for each realization are shown separately below.  
 
 ```{r fig.height=10, fig.width=8}
 par(mfrow = c(4,3))
 
 for(i in 1:10){
   plot(samples_vect[samples_vect$iter==i],cex=0.5, col="blue",ext=ext(rv),
-       main=paste0("sampling iteration: ",i), mar=c(1,1,1.8,0.5))
+       main=paste0("Realization: ",i), mar=c(1,1,1.8,0.5))
   polys(rv)
 }
 ```
