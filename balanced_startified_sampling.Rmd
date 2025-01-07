@@ -182,16 +182,8 @@ Five years (2015–2019) of annual minimum and maximum temperature data with a 5
 
 rst_files =  list.files("./Temp_NOAA/", pattern = ".nc$")
 temp1 = rast(paste0("./Temp_NOAA/",rst_files[1]))
-plot(temp1[[1]])
-x <- rotate(temp1) 
-plot(x[[1]])
 
 rv1 = buffer(rv,5000)
-
-x1 = crop(x,rv1, mask=TRUE)
-plot(x1[[1]])
-polys(rv)
-polys(rv1)
 
 for(rst in rst_files){
   terra::crop(rotate(rast(paste0("./Temp_NOAA/",rst))),rv1, mask=TRUE, filename=paste0("./Temp_NOAA_MA/",rst))
