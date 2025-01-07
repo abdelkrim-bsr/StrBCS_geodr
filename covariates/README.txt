@@ -1,0 +1,1 @@
+The content of this directory was tiled in 'covariates2' due to GitHub's file size constraints.

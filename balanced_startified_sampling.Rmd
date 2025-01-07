@@ -4,8 +4,8 @@ title: Was the balanced stratified coverage sampling not well spatially distribu
 author: "Abdelkrim Bouasria"
 date: "2025-01-06"
 output:
-  html_document:
-    df_print: paged
+  word_document: default
+  html_document: default
 ---
 
 ## Introduction
@@ -35,9 +35,9 @@ cropland = rast("./_RAW_Data/CROPLAND/croplands.vrt")
 cropland[cropland==0] = NA
 cropland[cropland==1] = NA
 
-rv= vect("./vect/Morocco_regions_mask.shp")
+rv_mask= vect("./vect/Morocco_regions_mask.shp")
 
-crop(cropland,rv, mask=TRUE, filename="./covariates/croplands.tif",
+crop(cropland,rv_mask, mask=TRUE, filename="./covariates/croplands.tif",
             datatype="INT1U", gdal=c("COMPRESS=DEFLATE"))
 
 ```
@@ -52,19 +52,24 @@ text(rv,"NAME_1", halo=TRUE)
 
 ### FAO Soil map
 
-Soil data was obtained 
+Soil data was sourced from the Digital Soil Map of the World (DSMW), which is based on the FAO-UNESCO Soil Map of the World. The DSMW, digitized at a 1:5,000,000 scale, uses a Geographic projection (latitude-longitude). Further details about the DSMW can be found on the [FAO website](http://www.fao.org/soils-portal/soil-survey/soil-maps-and-databases/faounesco-soil-map-of-the-world/en/). The vector dataset is available for download via the [FAO data catalog](https://data.apps.fao.org/map/catalog/srv/eng/catalog.search#/metadata/446ed430-8383-11db-b9b2-000d939bc5d8) or directly as a ZIP file: [DSMW.zip](https://storage.googleapis.com/fao-maps-catalog-data/uuid/446ed430-8383-11db-b9b2-000d939bc5d8/resources/DSMW.zip).  
+
+The vector map was clipped using the wheat-growing areas vector mask.  
 
 ```{r}
 rv_mask= vect("./vect/Morocco_regions_mask.shp")
 soil = crop(vect("./_RAW_Data/FAO_SOIL/DSMW/DSMW.shp"),rv_mask)
 plot(soil,"DOMSOI", ext=ext(rv))
 ```
+The vector file was then rasterized to align with the cropland raster grid cells.  
 
 ```{r eval=FALSE, include=TRUE}
-mask(rasterize(soil,cropland, field="Legend"),
+mask(rasterize(soil,cropland, field="DOMSOI"),
                 cropland, filename="./covariates/fao_soil.tif",
                      datatype="INT1U", gdal=c("COMPRESS=DEFLATE"))
 ```
+
+The resulting raster grid contained 23 different soil types.  
 
 ```{r}
 rst_soil = rast("./covariates/fao_soil.tif")
@@ -74,16 +79,16 @@ polys(rv)
 
 ### Topographic covariates: elevation and slope
 
-DEM data was sourced from xxxx using QGIS plugin
+We used the QGIS SRTM-Downloader plugin to download 25 SRTM DEM tiles from the NASA server. These tiles were then merged into a single VRT file for further processing.
 
-```{r warning=TRUE}
-library("marmap")
+```{r}
 dem = rast("./_RAW_Data/DEM/dem.vrt")
 plot(dem, col= rev(hcl.colors(10, "Greens 3")))
 polys(rv)
 
 ```
-The elevation and slope was prepared using 
+Elevation and slope data were prepared using the `terra` package, and the results were resampled to align with the cropland raster grid cells.
+
 ```{r eval=FALSE, include=TRUE}
 resample(crop(dem,rv_mask, mask=TRUE),
          cropland, method="bilinear", threads=TRUE,
@@ -96,18 +101,20 @@ slope = resample(crop(terrain(dem, v="slope"),rv_mask, mask=TRUE),
                  gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
 ```
 
+
 ```{r fig.height=3.5, fig.width=8}
 elevation = rast("./covariates/elevation.tif")
 slope = rast("./covariates/slope.tif")
 
 plot(c(elevation,slope), main=c("Elevation","Slope"),
      fun = \() polys(rv))
-
 ```
 
 ### Rainfall: Five years annual average
 
-We decompressed and cropped the CHIRPS decadal data of Africa to the study area.
+The five-year mean (2015–2019) annual rainfall data for the African continent, with a 5 km spatial resolution, was obtained from CHIRPS and is accessible at [https://data.chc.ucsb.edu/products/CHIRPS-2.0/africa_dekad/tifs/](https://data.chc.ucsb.edu/products/CHIRPS-2.0/africa_dekad/tifs/). The CHIRPS decadal rainfall data for Africa were decompressed and cropped to align with the study area.  
+
+
 ```{r eval=FALSE, include=TRUE}
 library(R.utils)
 # Crop for the study area extent
@@ -124,7 +131,8 @@ for(gz in gz_files){
 
 ```
 
-We calculated 
+We calculated the cumulative rainfall for each year and then derived the five-year annual average rainfall. Finally, the average rainfall data were resampled to match the cropland layer.
+
 ```{r eval=FALSE, include=TRUE}
 
 # calculate the cumulative annual rainfall
@@ -156,8 +164,6 @@ resample(annual_rainfall_avg,
                     filename="./covariates/rainfall.tif",
                     gdal=c("COMPRESS=DEFLATE"),overwrite=TRUE)
 
-
-
 ```
 
 
@@ -170,7 +176,8 @@ polys(rv)
 
 ### Temperature: Five years annual minimum and maximum temperature
 
-<https://downloads.psl.noaa.gov/Datasets/cpc_global_temp/>
+Five years (2015–2019) of annual minimum and maximum temperature data with a 50 km spatial resolution were downloaded as a '.NC' file from the [NOAA CPC Global Temperature Dataset](https://downloads.psl.noaa.gov/Datasets/cpc_global_temp/). The rasters were rotated to align with the correct world map using the `terra` package. The average temperature for each year was then calculated from the monthly maximum and minimum temperatures, followed by calculating the five-year average. Finally, the result was resampled to align with the cropland layer.
+
 
 ```{r eval=FALSE, include=TRUE}
 
@@ -238,16 +245,56 @@ plot(temp, fun= \() polys(rv))
 
 
 
+To optimize the raster for download on GitHub, which limits file size to 100 MB, we tiled the covariates and merged them into a VRT file.
+
+```{r}
+rv_mask= vect("./vect/Morocco_regions_mask.shp")
+
+r_files = list.files("./covariates/", pattern = ".tif$", full.names = T)[-1]
+cov = rast(lapply(r_files, \(r) rast(r)))
+my_crs = crs(cov)
+
+grid = getTileExtents(cov, c(1024,1024)*2, extend=TRUE, buffer=2)
+
+vgrid = NULL
+
+for(i in 1:nrow(grid)){
+  v = as.polygons(ext(grid[i,]),crs=my_crs)
+  if(is.null(vgrid)){
+    vgrid = v
+  }else{ vgrid= rbind(vgrid,v)}
+}
+
+vgrid = crop(vgrid, rv_mask)
+
+plot(cov[[1]], fun=function() polys(rv))
+polys(vgrid)
+
+```
+
+We generated 76 tiles, each with a smaller size.
+
+```{r eval=FALSE, include=TRUE}
+cov <- makeTiles(cov, vgrid, na.rm = TRUE, 
+                      filename = "./covariates2/cov_30_m_.tif",
+                      gdal=c("COMPRESS=DEFLATE"))
+
+```
+
+
 ## Sampling design test
 
 The authors utilized the `lcubestratified` function from the `BalancedSampling` R package, which implements stratified doubly balanced sampling with pooling of landing phases, utilizing the fast flight Cube method. This function requires seven input arguments, but only four are specified in the paper. These include: (1) the inclusion probabilities (`prob`), which were set to be equal for all points; (2) the spreading parameter (`Xpread`), representing the geographical coordinates across the study area; (3) the balancing auxiliary variables (`Xbal`), which include rainfall, temperature, slope, and elevation; and (4) the stratification parameter (`strata`), representing the FAO soil types . The settings for the remaining arguments were not reported, and therefore, it is assumed that they were left at their default values.
 ```{r}
-r_files = list.files("./covariates/", pattern = ".tif$", full.names = T)[-1]
-cov = rast(lapply(r_files, \(r) rast(r)))
+r_files = list.files("./covariates2/", pattern = ".tif$", full.names = TRUE)
+cov = vrt(r_files, filename= "./covariates2/cov_30_m.vrt", overwrite=TRUE)
+
+names(cov) = c("elevation", "soil", "rainfall", "slope", "tmax", "tmin")
 plot(cov, fun=function() polys(rv))
 ```
 
 
+This code will take a long time to run and requires more than 120 GB of memory. It cannot be executed on a laptop or ordinary desktop computers.
 
 ```{r eval=FALSE, include=TRUE}
 
@@ -287,7 +334,7 @@ saveRDS(xspr,"./samples/cov_xy.rds")
 
 ```
 
-
+After generating the samples for each iteration, we combined them into a single vector point file.
 
 ```{r eval=FALSE, include=TRUE}
 samples = readRDS("./samples/samples.rds")
@@ -307,6 +354,8 @@ writeVector(samples_vect,"./samples/samples_vect.gpkg")
 
 ```
 
+The results of the sampling design are shown below.  
+
 ```{r}
 rv= vect("./vect/Morocco_regions_mask.shp")
 samples_vect = vect("./samples/samples_vect.gpkg")
@@ -319,6 +368,8 @@ north("top")
 sbar(xy="bottomright", type="bar")
 
 ```
+
+The results of the sampling design for each iteration are shown separately below.  
 
 ```{r fig.height=10, fig.width=8}
 par(mfrow = c(4,3))
