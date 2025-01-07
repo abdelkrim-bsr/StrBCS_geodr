@@ -4,7 +4,6 @@ title: Was the balanced stratified coverage sampling not well spatially distribu
 author: "Abdelkrim Bouasria"
 date: "2025-01-06"
 output:
-  word_document: default
   html_document: default
 ---
 
