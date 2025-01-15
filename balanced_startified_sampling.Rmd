@@ -11,7 +11,7 @@ output:
 
 This repository contains a reproducible notebook accompanying the comment on [Asrat et al. (2024)](https://doi.org/10.1016/j.geoderma.2024.117116), published in *Geoderma*. The comment is entitled *Was the balanced stratified coverage sampling not well spatially distributed, or was it inadequately implemented?* Please refer to the comment for further details ([Bouasria, 2025]())
 
-In this notebook, I implement the sampling design described in Asrat et al. (2024) using the details provided in the main paper and the supplementary material. I will demonstrate the preparation of the covariates, followed by the execution of ten sampling realizations to evaluate whether the results exhibit clustering in any iteration.
+In this notebook, I implement the sampling design described in Asrat et al. (2024) using the details provided in the main paper and the supplementary material. I will demonstrate the preparation of the covariates, followed by the execution of ten sampling realizations to evaluate whether the results exhibit clustering in any realization.
 
 ## Covariates
 
@@ -352,7 +352,7 @@ rv= vect("./vect/Morocco_regions_mask.shp")
 samples_vect = vect("./samples/samples_vect.gpkg")
 
 plot(samples_vect,"iter", cex=0.5,mar=c(1,1,1,1),
-     plg=list(x="topleft",title="Iteration", title.cex=1.2, cex=1.2), 
+     plg=list(x="topleft",title="Realizations", title.cex=1.2, cex=1.2), 
      pax=list(side=1:4, retro=TRUE,cex.axis=1.2))
 polys(rv)
 north("top")
